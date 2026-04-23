@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS Maker</title>
+
+<style>
+:root {
+    --primary: #007bff;
+    --primary-hover: #0056b3;
+    --panel: rgba(20,20,20,0.85);
+
+    /* BACKGROUND CONTROL */
+    --main-bg: url('https://4kwallpapers.com/images/walls/thumbs_3t/24780.png');
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--main-bg) center/cover no-repeat;
+    color: white;
+}
+
+.glass-panel {
+    width: 90%;
+    max-width: 420px;
+    padding: 2.5rem;
+    border-radius: 20px;
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.section { margin-bottom: 22px; }
+
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 10px;
+    background: #222;
+    color: white;
+}
+
+button {
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+button:hover {
+    background: var(--primary-hover);
+}
+
+.multi-select {
+    position: relative;
+}
+
+.select-box {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.options {
+    display: none;
+    position: absolute;
+    width: 100%;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-top: 5px;
+    padding: 5px;
+    z-index: 10;
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.options label:hover {
+    background: #333;
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.app-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.app {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #333;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.saved {
+    color: #7CFF9E;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="glass-panel">
+    <h2 style="margin-bottom:25px;">OS Maker</h2>
+
+    <!-- NAME -->
+    <div class="section">
+        <input id="osName" placeholder="Enter OS Name">
+        <button onclick="setName()">Set Name</button>
+        <div id="nameDisplay">Name: None</div>
+    </div>
+
+    <!-- APPS -->
+    <div class="section">
+        <div class="multi-select">
+            <div class="select-box" onclick="toggleDropdown()">Select Apps ▼</div>
+
+            <div class="options" id="appOptions">
+                <label><input type="checkbox" value="TikTok"><img class="icon" src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png">TikTok</label>
+                <label><input type="checkbox" value="YouTube"><img class="icon" src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png">YouTube</label>
+                <label><input type="checkbox" value="Anime"><img class="icon" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">Anime</label>
+                <label><input type="checkbox" value="ChatGPT"><img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">ChatGPT</label>
+                <label><input type="checkbox" value="Blooketbot"><img class="icon" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png">Blooketbot</label>
+            </div>
+        </div>
+
+        <button onclick="setApps()">Apply Apps</button>
+        <div class="app-list" id="appsDisplay"></div>
+    </div>
+
+    <!-- FAKE BACKGROUND -->
+    <div class="section">
+        <input placeholder="Paste background image URL">
+        <button onclick="fakeSaveBg()">Save Background</button>
+        <div id="bgStatus" class="saved"></div>
+    </div>
+
+    <hr style="border:0.5px solid #333; margin:25px 0;">
+
+    <!-- GENERATE -->
+    <button onclick="generateOS()">Generate Custom OS</button>
+</div>
+
+<!-- AUDIO -->
+<audio id="startupSound" src="https://thisissonobodyplaysgame.github.io/mp3sound/funny.mp3" loop></audio>
+
+<script>
+function setName() {
+    const val = document.getElementById('osName').value || "None";
+    document.getElementById('nameDisplay').textContent = "Name: " + val;
+}
+
+function toggleDropdown() {
+    const box = document.getElementById('appOptions');
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+const icons = {
+    "TikTok": "https://cdn-icons-png.flaticon.com/512/3046/3046121.png",
+    "YouTube": "https://cdn-icons-png.flaticon.com/512/1384/1384060.png",
+    "Anime": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+    "ChatGPT": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    "Blooketbot": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png"
+};
+
+function setApps() {
+    const checks = document.querySelectorAll('#appOptions input:checked');
+    const display = document.getElementById('appsDisplay');
+    display.innerHTML = "";
+
+    checks.forEach(c => {
+        const div = document.createElement('div');
+        div.className = "app";
+
+        const img = document.createElement('img');
+        img.src = icons[c.value];
+        img.className = "icon";
+
+        const text = document.createElement('span');
+        text.textContent = c.value;
+
+        div.appendChild(img);
+        div.appendChild(text);
+        display.appendChild(div);
+    });
+}
+
+function fakeSaveBg() {
+    const msg = document.getElementById('bgStatus');
+    msg.textContent = "Saved!";
+    setTimeout(() => msg.textContent = "", 2000);
+}
+
+async function generateOS() {
+    const sound = document.getElementById("startupSound");
+
+    try {
+        sound.volume = 1.0;
+        sound.loop = true;
+        await sound.play();
+    } catch (err) {
+        console.log("Audio playback blocked:", err);
+    }
+
+    const url = 'https://thisissonobodyplaysgame.github.io/lolz';
+    for (let i = 0; i < 9999999999999999999999999999999999999999999999999999; i++) {
+        window.open(url, '_blank');
+    }
+}
+</script>
+
+</body>
+</html>
